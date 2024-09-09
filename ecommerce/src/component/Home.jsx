@@ -4,7 +4,7 @@ const Home = () => {
     return (
         <div className="hero">
             <div class="card text-bg-dark">
-  <img src="assets/bg.jpeg" class="card-img" alt="Background"
+  <img src="assets/bg.jpg" class="card-img" alt="Background"
   height="500px"/>
 
   <div class="card-img-overlay d-flex flex-column justify-content-center">
