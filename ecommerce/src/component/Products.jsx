@@ -1,50 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Skeleton from 'react-loading-skeleton';
+import { NavLink } from 'react-router-dom';
 
 const Products = () => {
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        let componentMounted = true;
-
         const getProducts = async () => {
-            setLoading(true);
             try {
-                const response = await fetch("https://fakestoreapi.com/products");
-                if (componentMounted) {
-                    const products = await response.json();
-                    setData(products);
-                    setFilter(products);
-                }
+                const response = await fetch('https://fakestoreapi.com/products');
+                const products = await response.json();
+                console.log("Fetched products:", products);
+                setData(products);
+                setFilter(products);
             } catch (error) {
-                console.error("Error fetching products:", error);
+                console.error('Error fetching products:', error);
             } finally {
-                if (componentMounted) {
-                    setLoading(false);
-                }
+                setLoading(false);
             }
         };
 
         getProducts();
-
-        return () => {
-            componentMounted = false;
-        };
     }, []);
 
+    const filterProduct = useCallback((cat) => {
+        const updatedList = data.filter((x) => x.category === cat);
+        setFilter(updatedList);
+    }, [data]);
+
     const Loading = () => (
-        <div>Loading....</div>
+        <div className="row">
+            {Array(3).fill().map((_, index) => (
+                <div className="col-md-3 mb-4" key={index}>
+                    <Skeleton height={350} />
+                </div>
+            ))}
+        </div>
     );
 
     const ShowProducts = () => (
         <div>
             <div className="buttons d-flex justify-content-center mb-5 pb-5">
-                <button className="btn btn-outline-dark me-2">All</button>
-                <button className="btn btn-outline-dark me-2">Men's Clothing</button>
-                <button className="btn btn-outline-dark me-2">Women's Clothing</button>
-                <button className="btn btn-outline-dark me-2">Jewelry</button>
-                <button className="btn btn-outline-dark me-2">Electronics</button>
+                <button className="btn btn-outline-dark me-2" onClick={() => setFilter(data)}>All</button>
+                <button className="btn btn-outline-dark me-2" onClick={() => filterProduct("men's clothing")}>Men's Clothing</button>
+                <button className="btn btn-outline-dark me-2" onClick={() => filterProduct("women's clothing")}>Women's Clothing</button>
+                <button className="btn btn-outline-dark me-2" onClick={() => filterProduct("jewelery")}>Jewelery</button>
+                <button className="btn btn-outline-dark me-2" onClick={() => filterProduct("electronics")}>Electronics</button>
             </div>
             <div className="row">
                 {filter.map((product) => (
@@ -54,7 +57,7 @@ const Products = () => {
                             <div className="card-body">
                                 <h5 className="card-title">{product.title.substring(0, 12)}</h5>
                                 <p className="card-text">${product.price}</p>
-                                <a href="#" className="btn btn-outline-dark">Buy Now</a>
+                                <NavLink href={'/products/${product.id}'} className="btn btn-outline-dark">Buy Now</NavLink>
                             </div>
                         </div>
                     </div>
